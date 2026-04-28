@@ -35,7 +35,7 @@ class Game:
 
     #TODO: fix issue with updating player stats when player.__best is None
     def update_player_stats(self, player):
-        if self.attempts < player.get_best():
+        if (player.get_best() == None) or (self.attempts < player.get_best()):
             player.set_best(self.attempts)
         
         player.increment_games_played()
