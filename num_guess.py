@@ -8,11 +8,13 @@ class Player:
         Attributes:
             __best [int or None]: The fewest attempts the player has won a game in. None if no game has been won yet.
             __games_played [int]: The total number of games the player has completed.
+            __history [list]: A list containing the correct answer and number of attempts for each game the player has completed.
     """
 
     def __init__(self):
         self.__best = None
         self.__games_played = 0
+        self.__history = []
     
     def set_best(self, value):
         """
@@ -38,6 +40,9 @@ class Player:
         """
         return self.__best
     
+    def get_games_played(self):
+        return self.__games_played
+
     def increment_games_played(self):
         """
             Increments the player's total games played count by 1.
@@ -49,9 +54,52 @@ class Player:
                 None
         """
         self.__games_played += 1
+
+    def add_to_history(self, num, attempts, winloss):
+        """
+            Adds the results of a game to the player's history.
+
+            Inputs:
+                num [int]: The randomly generated number that is the solution to the game.
+                attempts [int]: The number of attempts the player chose. 
+                winloss [bool]: True if the game was won, false otherwise.
+            
+            Outputs:
+                None
+        """
+        self.__history.append((num, attempts, winloss))
     
     def __str__(self):
-        return f"Number of games played: {self.__games_played}\nBest game: {self.__best} attempts"
+        """
+            Display's the player's gameplay statistics, including number of games played, personal best, and a table detailing the player's game history.
+
+            Inputs:
+                None
+
+            Outputs:
+                None
+        """
+        best = f"Personal best: {self.__best} attempts"
+
+        if self.__best == None:
+            best = "Personal best: N/A"
+
+        num_games = f"\nNumber of games played: {self.__games_played}"
+        player_history = f""
+
+        #Build game history, each new line is a new game               
+        for i in range(len(self.__history)):
+            game = self.__history[i]
+            answer = f"Answer was {game[0]}"
+            attempts = f", Solved in {game[1]} attempts"
+
+            win = game[2]
+            if win == False:
+                attempts = f", Loss"
+            
+            player_history = player_history + f"\nGame {i+1}: " + answer + attempts
+        
+        return best + num_games + player_history
 
     __repr__ = __str__  
 
@@ -96,15 +144,21 @@ class Game:
 
             Inputs:
                 player [Player]: The Player object whose stats are to be updated.
-                game_outcome [str]: Either "w" (win) or "l" (loss). Best score is only updated on a win.
+                game_outcome [True]: Either True (win) or False (loss). Best score is only updated on a win.
 
             Outputs:
                 None
         """
-        if game_outcome == "w" and ((player.get_best() == None) or (self.attempts < player.get_best())):
-            player.set_best(self.attempts)
+        if game_outcome == True:
+            player.add_to_history(self.__chosen_num, self.attempts, True)
+            if (player.get_best() == None) or (self.attempts < player.get_best()):
+                player.set_best(self.attempts)
+        
+        else:
+            player.add_to_history(self.__chosen_num, self.attempts, False)
         
         player.increment_games_played()
+        
     
     def make_guess(self, guess):
         """
@@ -167,17 +221,22 @@ class Game:
             #Terminates inner single-game loop if correct answer is reached
             if output == "Correct!":
                 print("\nCongratulations!")
-                self.update_player_stats(player, "w")
+                self.update_player_stats(player, True)
                 end = True
 
             elif self.attempts_left == 0:
                 print("\nOut of attempts! Better luck next time!")
-                self.update_player_stats(player, "l")
+                self.update_player_stats(player, False)
                 end = True
 
         #Display player stats after every game
         print("\nCurrent player stats:")
-        print(player)
+        print("Number of games played: " + str(player.get_games_played()))
+        
+        if player.get_best() == None:
+            print("Personal best: N/A")
+        else:
+            print(f"Personal best: {player.get_best()}")
     
         
 def start():
@@ -214,6 +273,7 @@ def start():
         
         if selection == "0":
             print("\nThanks for playing!")
+            print("\n" + str(player))
             repeat = False
         
         elif selection == "1":
