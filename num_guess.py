@@ -1,17 +1,53 @@
 import random
 
 class Player:
+    """
+        Represents a player across multiple rounds of the guessing game. Tracks the player's
+        total games played and their best score (fewest attempts in a winning game).
+
+        Attributes:
+            __best [int or None]: The fewest attempts the player has won a game in. None if no game has been won yet.
+            __games_played [int]: The total number of games the player has completed.
+    """
+
     def __init__(self):
         self.__best = None
         self.__games_played = 0
     
     def set_best(self, value):
+        """
+            Sets the player's best score (fewest attempts) to the given value.
+
+            Inputs:
+                value [int]: The number of attempts to record as the player's best game.
+
+            Outputs:
+                None
+        """
         self.__best = value
     
     def get_best(self):
+        """
+            Returns the player's current best score.
+
+            Inputs:
+                None
+
+            Outputs:
+                [int or None]: The fewest attempts the player has won a game in, or None if no game has been won yet.
+        """
         return self.__best
     
     def increment_games_played(self):
+        """
+            Increments the player's total games played count by 1.
+
+            Inputs:
+                None
+
+            Outputs:
+                None
+        """
         self.__games_played += 1
     
     def __str__(self):
@@ -20,14 +56,31 @@ class Player:
     __repr__ = __str__  
 
 
-#TODO: Try to consolidate run_game function into the game class. Need to modify current functions.
 class Game:
+    """
+        Represents a single round of the guessing game. Manages the randomly chosen target number,
+        tracks the number of attempts made, and handles the core game logic for one round.
+
+        Attributes:
+            attempts [int]: The number of guesses the player has made in the current round.
+            attempts_left [int]: The number of guesses remaining before the game is lost. Starts at 7.
+            __chosen_num [int]: The randomly selected target number between 1 and 100 (inclusive).
+    """
     def __init__(self):
         self.attempts = 0
         self.attempts_left = 7
         self.__chosen_num = random.randint(1, 100)
 
     def validate_input(self, string):
+        """
+            Checks whether a given string can be converted to an integer.
+
+            Inputs:
+                string [str]: The string to validate.
+
+            Outputs:
+                [bool]: True if the string is convertible to an integer, False otherwise.
+        """
         try:
             output = int(string)
             return True
@@ -37,12 +90,33 @@ class Game:
     
 
     def update_player_stats(self, player, game_outcome):
+        """
+            Updates the player's stats at the end of a game. Increments games played, and updates
+            the player's best score if the current game was won in fewer attempts than the previous best.
+
+            Inputs:
+                player [Player]: The Player object whose stats are to be updated.
+                game_outcome [str]: Either "w" (win) or "l" (loss). Best score is only updated on a win.
+
+            Outputs:
+                None
+        """
         if game_outcome == "w" and ((player.get_best() == None) or (self.attempts < player.get_best())):
             player.set_best(self.attempts)
         
         player.increment_games_played()
     
     def make_guess(self, guess):
+        """
+            Processes a single guess, updating attempt counts and comparing the guess to the chosen number.
+
+            Inputs:
+                guess [str]: A string representation of the player's guessed integer.
+
+            Outputs:
+                [str]: "Correct!" if the guess matches the chosen number, "Too low" if the guess is
+                    below it, or "Too high" if the guess is above it.
+        """
         self.attempts += 1
         self.attempts_left -= 1
         guess = int(guess)
@@ -61,7 +135,17 @@ class Game:
     __repr__ = __str__
 
     def run_game(self, player):
-        
+        """
+            Runs a single round of the guessing game. Manages the inner game loop, handling input
+            validation, guess processing, and end conditions (correct guess or attempts exhausted).
+            Displays player stats at the end of each round.
+
+            Inputs:
+                player [Player]: The Player object participating in this round.
+
+            Outputs:
+                None
+        """
         print("Hello! This is a number guessing game. The computer has randomly selected a number between 1 and 100 (inclusive). You have 7 attempts. Please type in your first guess.")
         end = False
         while not end:
@@ -97,6 +181,17 @@ class Game:
     
         
 def start():
+    """
+        Entry point for the game. Instantiates a Player and manages the outer loop that allows
+        the player to play multiple rounds. After each round, prompts the player to play again
+        or quit, repeatedly asking until a valid choice (0 or 1) is entered.
+
+        Inputs:
+            None
+
+        Outputs:
+            None
+    """
     #start game by instantiating player
     player = Player()
     
