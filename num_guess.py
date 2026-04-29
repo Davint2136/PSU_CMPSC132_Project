@@ -77,7 +77,7 @@ class Player:
                 None
 
             Outputs:
-                None
+                [str]: A formatted string displaying the player's personal best, number of games played, and game history.
         """
         best = f"Personal best: {self.__best} attempts"
 
